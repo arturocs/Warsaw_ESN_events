@@ -30,9 +30,12 @@ pages.forEach(param => {
                 var name = event.node.name
                 var day = event.node.shortDateLabel
                 var hour = event.node.shortTimeLabel.split(" ")
-
-                var n_skip = !isNaN(hour[0]) ? 2 : 1
-                hour.splice(0, n_skip)
+                if (!isNaN(hour[0])) {
+                    hour.splice(0, 2)
+                } else {
+                    hour.splice(0, 1)
+                    hour.pop()
+                }
                 hour = hour.join(" ")
 
                 var formated_event = name + " | " + day + " " + hour
