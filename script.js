@@ -44,6 +44,8 @@ pages.forEach(param => {
             });
             var sorted_events = [...events_list.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort()
             console.log(sorted_events)
+            var loading = document.getElementById("loading")
+            loading.innerHTML = "";
             var list = document.getElementById("EventList")
             list.innerHTML = "";
             sorted_events.forEach(element => {
