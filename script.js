@@ -21,15 +21,17 @@ var pages = [
 ];
 var events_list = new Map();
 pages.forEach(param => {
-    try {
-        json_petition(param, response => {
+    json_petition(param, response => {
+        try {
             var events = response.data.page.upcoming_events.edges
             events.forEach(event => {
+
                 var timestamp = event.node.startTimestampForDisplay
                 var event_id = event.node.id
                 var name = event.node.name
                 var day = event.node.shortDateLabel
                 var hour = event.node.shortTimeLabel.split(" ")
+
                 if (!isNaN(hour[0])) {
                     hour.splice(0, 2)
                 } else {
@@ -42,26 +44,27 @@ pages.forEach(param => {
                 events_list.set(event_id, [formated_event, timestamp]);
 
             });
-            var sorted_events = [...events_list.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort()
-            console.log(sorted_events)
-            var loading = document.getElementById("loading")
-            loading.innerHTML = "";
-            var list = document.getElementById("EventList")
-            list.innerHTML = "";
-            sorted_events.forEach(element => {
-                var li = document.createElement("li");
-                var a = document.createElement("a")
-                a.appendChild(document.createTextNode(element[1][0]));
-                a.setAttribute("href", "https://www.facebook.com/events/" + element[1][1])
-                a.setAttribute("target", "_blank")
-                li.appendChild(a)
-                list.appendChild(li);
-            });
+        } catch (e) {
+            console.log(e)
+        }
+
+        var sorted_events = [...events_list.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort()
+        var loading = document.getElementById("loading")
+        loading.innerHTML = "";
+        var list = document.getElementById("EventList")
+        list.innerHTML = "";
+        sorted_events.forEach(element => {
+            var li = document.createElement("li");
+            var a = document.createElement("a")
+            a.appendChild(document.createTextNode(element[1][0]));
+            a.setAttribute("href", "https://www.facebook.com/events/" + element[1][1])
+            a.setAttribute("target", "_blank")
+            li.appendChild(a)
+            list.appendChild(li);
+        });
 
 
-        })
-    } catch (e) {
-        console.log(e)
-    }
+    })
+
 
 })
