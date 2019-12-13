@@ -18,17 +18,17 @@ window.onload = () => {
         138320816228452, //ESN PW
         173656083644, //ESN UW
         128779253861459, //ESN SGH
-        2620926351263365, //ESN WUM
+        106670159472245, //ESN WUM
         146760465383748, //ESN SGGW
         393135780706771, //ESN SWPS
     ];
-    var events_list = new Map();
-    var promise_list = pages.map(page => { return json_petition(page) })
+    var event_list = new Map();
+    var promise_list = pages.map(page => json_petition(page))
 
-    Promise.all(promise_list).then(values => {
-        values.forEach(element => {
+    Promise.all(promise_list).then(responses => {
+        responses.forEach(event_json => {
             try {
-                var events = element.data.page.upcoming_events.edges;
+                var events = event_json.data.page.upcoming_events.edges;
                 events.forEach(event => {
                     var timestamp = event.node.startTimestampForDisplay;
                     var event_id = event.node.id;
@@ -42,26 +42,23 @@ window.onload = () => {
                         hour.pop();
                     }
                     var formated_event = name + " | " + day + " " + hour.join(" ");
-                    events_list.set(event_id, [formated_event, timestamp]);
+                    event_list.set(event_id, [formated_event, timestamp]);
                 })
             } catch (e) {
                 console.log(e);
             }
-        })
-        var sorted_events = [...events_list.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort();
+        });
+        var sorted_events = [...event_list.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort();
         document.getElementById("loading").innerHTML = "";
         var list = document.getElementById("EventList");
-        sorted_events.forEach(element => {
+        sorted_events.forEach(event => {
             var li = document.createElement("li");
             var a = document.createElement("a");
-            a.appendChild(document.createTextNode(element[1][0]));
-            a.setAttribute("href", "https://www.facebook.com/events/" + element[1][1]);
+            a.appendChild(document.createTextNode(event[1][0]));
+            a.setAttribute("href", "https://www.facebook.com/events/" + event[1][1]);
             a.setAttribute("target", "_blank");
             li.appendChild(a);
             list.appendChild(li);
         });
-    })
-        .catch(e => {
-            console.error(e);
-        });
+    }).catch(e => console.error(e));
 }
