@@ -21,6 +21,7 @@ window.onload = () => {
         106670159472245, //ESN WUM
         146760465383748, //ESN SGGW
         393135780706771, //ESN SWPS
+        205620019512622 //ESN Warsaw United
     ];
     var event_list = new Map();
     var promise_list = pages.map(page => json_petition(page))
