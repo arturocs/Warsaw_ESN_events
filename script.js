@@ -12,20 +12,19 @@ async function json_petition(page_id) {
         resolve(content);
     });
 }
+var pages = [
+    138320816228452, //ESN PW
+    173656083644, //ESN UW
+    128779253861459, //ESN SGH
+    106670159472245, //ESN WUM
+    146760465383748, //ESN SGGW
+    393135780706771, //ESN SWPS
+    205620019512622 //ESN Warsaw United
+];
+var event_list = new Map();
+var promise_list = pages.map(page => json_petition(page))
 
 window.onload = () => {
-    var pages = [
-        138320816228452, //ESN PW
-        173656083644, //ESN UW
-        128779253861459, //ESN SGH
-        106670159472245, //ESN WUM
-        146760465383748, //ESN SGGW
-        393135780706771, //ESN SWPS
-        205620019512622 //ESN Warsaw United
-    ];
-    var event_list = new Map();
-    var promise_list = pages.map(page => json_petition(page))
-
     Promise.all(promise_list).then(responses => {
         responses.forEach(event_json => {
             try {
