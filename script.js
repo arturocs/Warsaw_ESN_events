@@ -4,7 +4,7 @@ async function json_petition(page_id) {
             "Accept-Language": "en-US",
             "Content-Type": "application/x-www-form-urlencoded",
         },
-        "body": "variables=%7B%22pageID%22%3A%22" + page_id + "%22%7D&doc_id=2455863461165494",
+        "body": "variables=%7B%22pageID%22%3A%22" + page_id + "%22%7D&doc_id=2464276676984576",
         "method": "POST",
     })
     const content = await rawResponse.json();
