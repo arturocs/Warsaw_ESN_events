@@ -16,8 +16,9 @@ h3 {
 ul {
     list-style-type: none;
 }
-    
-
+a {
+    max-width: 300px
+}
 li {
     margin: 15px 0;
     border-bottom: 1px solid#bfbfc2;
@@ -26,10 +27,8 @@ li {
 
 a:link {
     color: rgb(48, 73, 128);
-    text-decoration: none;
 }
 
 a:visited {
     color: rgb(24, 21, 82);
-    text-decoration: none;
 }
