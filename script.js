@@ -1,10 +1,10 @@
-async function json_petition(variable, id, doc_id) {
+async function jsonPetition(variable, id, docId) {
     const rawResponse = await fetch("https://cors-anywhere.herokuapp.com/https://www.facebook.com/api/graphql/", {
         "headers": {
             "Accept-Language": "en-US",
             "Content-Type": "application/x-www-form-urlencoded",
         },
-        "body": "variables=%7B%22" + variable + "%22%3A%22" + id + "%22%7D&doc_id=" + doc_id,
+        "body": "variables=%7B%22" + variable + "%22%3A%22" + id + "%22%7D&doc_id=" + docId,
         "method": "POST",
     })
     const content = await rawResponse.json();
@@ -31,7 +31,59 @@ function linkify(inputText) {
     return replacedText;
 }
 
-var pages = [
+function showDesctiption(fullEventDescription, event) {
+    if (fullEventDescription.innerText == "") {
+        var facebookLink = document.createElement("a");
+        var eventText = document.createElement("p");
+        var pAux = document.createElement("p")
+        facebookLink.appendChild(document.createTextNode("[Facebook page]"))
+        facebookLink.setAttribute("href", "https://www.facebook.com/events/" + event[1][1]);
+        facebookLink.setAttribute("target", "_blank");
+        fullEventDescription.appendChild(facebookLink)
+        fullEventDescription.appendChild(eventText)
+        eventText.innerHTML = "<p><strong>Loading</strong></p>"
+        fullEventDescription.style.display = "block"
+        try {
+            jsonPetition(descriptionVariable, event[1][1], descriptionDoc).then(res => {
+                pAux.innerText = res.data.event.details.text;
+                eventText.innerHTML = linkify(pAux.innerHTML)
+            })
+        } catch (e) {
+            console.log(e);
+        }
+    } else {
+        fullEventDescription.style.display = fullEventDescription.style.display == "none" ? "block" : "none"
+    }
+}
+
+function jsonsToEventList(responses){
+    var eventList = new Map();
+    responses.forEach(eventJson => {
+        try {
+            var events = eventJson.data.page.upcoming_events.edges;
+            events.forEach(event => {
+                var timestamp = event.node.startTimestampForDisplay;
+                var eventId = event.node.id;
+                var name = event.node.name;
+                var day = event.node.shortDateLabel;
+                var hour = event.node.shortTimeLabel.split(" ");
+                if (hour.find(word => word == "-") !== undefined) {
+                    hour.splice(0, 2);
+                } else {
+                    hour.splice(0, 1);
+                    hour.pop();
+                }
+                var formatedEvent = name + " | " + day + " " + hour.join(" ");
+                eventList.set(eventId, [formatedEvent, timestamp]);
+            })
+        } catch (e) {
+            console.log(e);
+        }
+    });
+    return eventList
+}
+
+const pages = [
     138320816228452, //ESN PW
     173656083644, //ESN UW
     128779253861459, //ESN SGH
@@ -40,75 +92,31 @@ var pages = [
     393135780706771, //ESN SWPS
     205620019512622 //ESN Warsaw United
 ];
-var events_doc = "2464276676984576"
-var description_doc = "1640160956043533"
-var events_variable = "pageID"
-var description_variable = "eventID"
-var event_list = new Map();
-var promise_list = pages.map(page => json_petition(events_variable, page, events_doc))
-json_petition(description_variable, "657486291704993", description_doc).then(res => console.log(res.data.event.details.text))
+const eventsDoc = "2464276676984576"
+const descriptionDoc = "1640160956043533"
+const eventsVariable = "pageID"
+const descriptionVariable = "eventID"
+
+var promiseList = pages.map(page => jsonPetition(eventsVariable, page, eventsDoc))
+
 window.onload = () => {
-    Promise.all(promise_list).then(responses => {
-        responses.forEach(event_json => {
-            try {
-                var events = event_json.data.page.upcoming_events.edges;
-                events.forEach(event => {
-                    var timestamp = event.node.startTimestampForDisplay;
-                    var event_id = event.node.id;
-                    var name = event.node.name;
-                    var day = event.node.shortDateLabel;
-                    var hour = event.node.shortTimeLabel.split(" ");
-                    if (hour.find(word => word == "-") !== undefined) {
-                        hour.splice(0, 2);
-                    } else {
-                        hour.splice(0, 1);
-                        hour.pop();
-                    }
-                    var formated_event = name + " | " + day + " " + hour.join(" ");
-                    event_list.set(event_id, [formated_event, timestamp]);
-                })
-            } catch (e) {
-                console.log(e);
-            }
-        });
-        var sorted_events = [...event_list.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort();
+    Promise.all(promiseList).then(responses => {
+        var eventList = jsonsToEventList(responses)
+        var sortedEvents = [...eventList.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort();
         document.getElementById("loading").innerHTML = "";
         var list = document.getElementById("EventList");
-        sorted_events.forEach(event => {
-            var event_list_entry = document.createElement("li");
-            var event_description_ul = document.createElement("ul");
-            var event_description_p = document.createElement("p");
-            var event_entry_p = document.createElement("p");
-            event_description_p.style.display = "none"
-            event_entry_p.appendChild(document.createTextNode(event[1][0]));
-            event_description_ul.appendChild(event_description_p)
-            event_list_entry.appendChild(event_entry_p);
-            event_list_entry.appendChild(event_description_ul)
-            event_entry_p.onclick = () => {
-                if (event_description_p.innerText == "") {
-                    var facebook_link = document.createElement("a");
-                    var event_description = document.createElement("p");
-                    var tmp_p = document.createElement("p")
-                    facebook_link.appendChild(document.createTextNode("[Facebook page]"))
-                    facebook_link.setAttribute("href", "https://www.facebook.com/events/" + event[1][1]);
-                    facebook_link.setAttribute("target", "_blank");
-                    event_description_p.appendChild(facebook_link)
-                    event_description_p.appendChild(event_description)
-                    event_description.innerHTML = "<p><strong>Loading</strong></p>"
-                    event_description_p.style.display = "block"
-                    try {
-                        json_petition(description_variable, event[1][1], description_doc).then(res => {
-                            tmp_p.innerText =  res.data.event.details.text;
-                            event_description.innerHTML = linkify(tmp_p.innerHTML)
-                        })
-                    } catch (e) {
-                        console.log(e);
-                    }
-                } else {
-                    event_description_p.style.display = event_description_p.style.display == "none" ? "block" : "none"
-                }
-            }
-            list.appendChild(event_list_entry);
+        sortedEvents.forEach(event => {
+            var eventListEntry = document.createElement("li");
+            var eventDescriptionIndentation = document.createElement("ul");
+            var eventDescriptionText = document.createElement("p");
+            var eventTitle = document.createElement("p");
+            eventDescriptionText.style.display = "none"
+            eventTitle.appendChild(document.createTextNode(event[1][0]));
+            eventDescriptionIndentation.appendChild(eventDescriptionText)
+            eventListEntry.appendChild(eventTitle);
+            eventListEntry.appendChild(eventDescriptionIndentation)
+            eventTitle.onclick = () => { showDesctiption(eventDescriptionText, event) }
+            list.appendChild(eventListEntry);
         });
     }).catch(e => console.error(e));
 }
