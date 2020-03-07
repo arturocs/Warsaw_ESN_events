@@ -36,7 +36,7 @@ function showDesctiption(fullEventDescription, event) {
         var facebookLink = document.createElement("a");
         var eventText = document.createElement("p");
         var pAux = document.createElement("p")
-        facebookLink.appendChild(document.createTextNode("[Facebook page]"))
+        facebookLink.appendChild(document.createTextNode("Facebook page"))
         facebookLink.setAttribute("href", "https://www.facebook.com/events/" + event[1][1]);
         facebookLink.setAttribute("target", "_blank");
         fullEventDescription.appendChild(facebookLink)
@@ -109,7 +109,7 @@ window.onload = () => {
             var eventListEntry = document.createElement("li");
             var eventDescriptionIndentation = document.createElement("ul");
             var eventDescriptionText = document.createElement("p");
-            var eventTitle = document.createElement("p");
+            var eventTitle = document.createElement("h4");
             eventDescriptionText.style.display = "none"
             eventTitle.appendChild(document.createTextNode(event[1][0]));
             eventDescriptionIndentation.appendChild(eventDescriptionText)
