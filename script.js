@@ -64,7 +64,7 @@ function jsonsToEventList(responses) {
                 var eventId = event.node.id;
                 var name = event.node.name;
                 var day = event.node.shortDateLabel;
-                var hour = event.node.shortTimeLabel.replace(/UTC\+01/,"");
+                var hour = event.node.shortTimeLabel.replace(/UTC\+01/, "");
                 var formatedEvent = name + " | " + day + " " + hour;
                 processedEventList.set(eventId, [formatedEvent, timestamp]);
             })
@@ -103,10 +103,12 @@ window.onload = () => {
             var eventDescriptionIndentation = document.createElement("ul");
             var eventDescriptionText = document.createElement("p");
             var eventTitle = document.createElement("h4");
-            eventDescriptionText.style.display = "none"
+            var bottomBorder = document.createElement("div")
             eventTitle.appendChild(document.createTextNode(event[1][0]));
+            bottomBorder.appendChild(eventTitle)
+            eventDescriptionText.style.display = "none"
             eventDescriptionIndentation.appendChild(eventDescriptionText)
-            eventListEntry.appendChild(eventTitle);
+            eventListEntry.appendChild(bottomBorder);
             eventListEntry.appendChild(eventDescriptionIndentation)
             eventTitle.onclick = () => { showDesctiption(eventDescriptionText, event[1][1]) }
             list.appendChild(eventListEntry);

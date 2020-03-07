@@ -11,8 +11,11 @@ h1, h2 {
     line-height: 1.2;
     margin: 40px 0;
 }
-h4 {
-    margin: 20px 0;
+h4{
+    margin-bottom: 10px;
+    margin-top: 17px;
+}
+div {
     border-bottom: 1px solid#bfbfc2;
 }
 ul {
