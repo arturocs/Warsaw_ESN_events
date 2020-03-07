@@ -31,32 +31,30 @@ function linkify(inputText) {
     return replacedText;
 }
 
-function showDesctiption(fullEventDescription, event) {
+function showDesctiption(fullEventDescription, eventId) {
     if (fullEventDescription.innerText == "") {
-        var facebookLink = document.createElement("a");
         var eventText = document.createElement("p");
         var pAux = document.createElement("p")
+        jsonPetition(descriptionVariable, eventId, descriptionDoc).then(res => {
+            pAux.innerText = res.data.event.details.text;
+            eventText.innerHTML = linkify(pAux.innerHTML)
+            pAux.remove()
+        }).catch(e => console.error(e));
+        var facebookLink = document.createElement("a");
         facebookLink.appendChild(document.createTextNode("Facebook page"))
-        facebookLink.setAttribute("href", "https://www.facebook.com/events/" + event[1][1]);
+        facebookLink.setAttribute("href", "https://www.facebook.com/events/" + eventId);
         facebookLink.setAttribute("target", "_blank");
         fullEventDescription.appendChild(facebookLink)
         fullEventDescription.appendChild(eventText)
         eventText.innerHTML = "<p><strong>Loading</strong></p>"
         fullEventDescription.style.display = "block"
-        try {
-            jsonPetition(descriptionVariable, event[1][1], descriptionDoc).then(res => {
-                pAux.innerText = res.data.event.details.text;
-                eventText.innerHTML = linkify(pAux.innerHTML)
-            })
-        } catch (e) {
-            console.log(e);
-        }
+
     } else {
         fullEventDescription.style.display = fullEventDescription.style.display == "none" ? "block" : "none"
     }
 }
 
-function jsonsToEventList(responses){
+function jsonsToEventList(responses) {
     var eventList = new Map();
     responses.forEach(eventJson => {
         try {
@@ -115,7 +113,7 @@ window.onload = () => {
             eventDescriptionIndentation.appendChild(eventDescriptionText)
             eventListEntry.appendChild(eventTitle);
             eventListEntry.appendChild(eventDescriptionIndentation)
-            eventTitle.onclick = () => { showDesctiption(eventDescriptionText, event) }
+            eventTitle.onclick = () => { showDesctiption(eventDescriptionText, event[1][1]) }
             list.appendChild(eventListEntry);
         });
     }).catch(e => console.error(e));
