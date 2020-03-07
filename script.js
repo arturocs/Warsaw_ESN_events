@@ -32,7 +32,7 @@ function linkify(inputText) {
 }
 
 function showDesctiption(fullEventDescription, eventId) {
-    if (fullEventDescription.innerText == "") {
+    if (fullEventDescription.innerText === "") {
         var eventText = document.createElement("p");
         var pAux = document.createElement("p")
         jsonPetition(descriptionVariable, eventId, descriptionDoc).then(res => {
@@ -50,7 +50,7 @@ function showDesctiption(fullEventDescription, eventId) {
         fullEventDescription.style.display = "block"
 
     } else {
-        fullEventDescription.style.display = fullEventDescription.style.display == "none" ? "block" : "none"
+        fullEventDescription.style.display = fullEventDescription.style.display === "none" ? "block" : "none"
     }
 }
 
