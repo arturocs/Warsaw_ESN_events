@@ -6,7 +6,7 @@ body {
     background: rgb(241, 241, 236)
 }
 
-h1{
+h1, h2 {
     text-align: center;
     line-height: 1.2;
     margin: 40px 0;
@@ -25,6 +25,12 @@ ul ul{
     padding-right: 10px;
 }
 
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 40px;
+}
 
 
 a:link {

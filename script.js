@@ -46,7 +46,7 @@ function showDesctiption(fullEventDescription, eventId) {
         facebookLink.setAttribute("target", "_blank");
         fullEventDescription.appendChild(facebookLink)
         fullEventDescription.appendChild(eventText)
-        eventText.innerHTML = "<p><strong>Loading</strong></p>"
+        eventText.innerHTML = "<img src=\"./loading.gif\" alt=\"Loading\">"
         fullEventDescription.style.display = "block"
 
     } else {
@@ -101,7 +101,8 @@ window.onload = () => {
     Promise.all(promiseList).then(responses => {
         var eventList = jsonsToEventList(responses)
         var sortedEvents = [...eventList.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort();
-        document.getElementById("loading").innerHTML = "";
+        document.getElementById("loading").style.display = "none"
+        document.getElementById("loadinggif").style.display = "none"
         var list = document.getElementById("EventList");
         sortedEvents.forEach(event => {
             var eventListEntry = document.createElement("li");
