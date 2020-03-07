@@ -55,30 +55,24 @@ function showDesctiption(fullEventDescription, eventId) {
 }
 
 function jsonsToEventList(responses) {
-    var eventList = new Map();
-    responses.forEach(eventJson => {
+    var processedEventList = new Map();
+    responses.forEach(json => {
         try {
-            var events = eventJson.data.page.upcoming_events.edges;
-            events.forEach(event => {
+            var jsonEventList = json.data.page.upcoming_events.edges;
+            jsonEventList.forEach(event => {
                 var timestamp = event.node.startTimestampForDisplay;
                 var eventId = event.node.id;
                 var name = event.node.name;
                 var day = event.node.shortDateLabel;
-                var hour = event.node.shortTimeLabel.split(" ");
-                if (hour.find(word => word == "-") !== undefined) {
-                    hour.splice(0, 2);
-                } else {
-                    hour.splice(0, 1);
-                    hour.pop();
-                }
-                var formatedEvent = name + " | " + day + " " + hour.join(" ");
-                eventList.set(eventId, [formatedEvent, timestamp]);
+                var hour = event.node.shortTimeLabel.replace(/UTC\+01/,"");
+                var formatedEvent = name + " | " + day + " " + hour;
+                processedEventList.set(eventId, [formatedEvent, timestamp]);
             })
         } catch (e) {
             console.log(e);
         }
     });
-    return eventList
+    return processedEventList
 }
 
 const pages = [
