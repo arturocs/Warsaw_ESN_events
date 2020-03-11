@@ -31,18 +31,23 @@ function linkify(inputText) {
     return replacedText;
 }
 
-function showDesctiption(fullEventDescription, eventId) {
+async function getDescription(eventId) {
     const descriptionVariable = "eventID"
     const descriptionDoc = "1640160956043533"
+    const eventJson = await jsonPetition(descriptionVariable, eventId, descriptionDoc)
+    var pAux = document.createElement("p")
+    return new Promise(resolve => {
+        pAux.innerText = eventJson.data.event.details.text
+        var linkifiedText = linkify(pAux.innerHTML)
+        pAux.remove()
+        resolve(linkifiedText)
+    });
+}
 
+function showDesctiption(fullEventDescription, eventId) {
     if (fullEventDescription.innerText === "") {
         var eventText = document.createElement("p");
-        var pAux = document.createElement("p")
-        jsonPetition(descriptionVariable, eventId, descriptionDoc).then(res => {
-            pAux.innerText = res.data.event.details.text;
-            eventText.innerHTML = linkify(pAux.innerHTML)
-            pAux.remove()
-        }).catch(e => console.error(e));
+        getDescription(eventId).then(description => eventText.innerHTML = description).catch(e => console.error(e));
         var facebookLink = document.createElement("a");
         facebookLink.appendChild(document.createTextNode("Facebook page"))
         facebookLink.setAttribute("href", "https://www.facebook.com/events/" + eventId);
@@ -51,7 +56,6 @@ function showDesctiption(fullEventDescription, eventId) {
         fullEventDescription.appendChild(eventText)
         eventText.innerHTML = "<img src=\"./loading.gif\" alt=\"Loading\">"
         fullEventDescription.style.display = "block"
-
     } else {
         fullEventDescription.style.display = fullEventDescription.style.display === "none" ? "block" : "none"
     }
@@ -86,7 +90,7 @@ function jsonsToEventList(responses, dateFormat) {
     return processedEventList
 }
 
-function getEvents(pages,doc) {
+function getEvents(pages, doc) {
     const eventsVariable = "pageID"
     return pages.map(page => jsonPetition(eventsVariable, page, doc))
 }
