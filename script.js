@@ -32,6 +32,9 @@ function linkify(inputText) {
 }
 
 function showDesctiption(fullEventDescription, eventId) {
+    const descriptionVariable = "eventID"
+    const descriptionDoc = "1640160956043533"
+
     if (fullEventDescription.innerText === "") {
         var eventText = document.createElement("p");
         var pAux = document.createElement("p")
@@ -57,21 +60,35 @@ function showDesctiption(fullEventDescription, eventId) {
 function jsonsToEventList(responses, dateFormat) {
     var processedEventList = new Map();
     responses.forEach(json => {
-        try {
-            var jsonEventList = json.data.page.upcoming_events.edges;
-            jsonEventList.forEach(event => {
+        if ("upcoming_events" in json.data.page) {
+            json.data.page.upcoming_events.edges.forEach(event => {
                 var timestamp = event.node.startTimestampForDisplay;
-                var eventId = event.node.id;
-                var name = event.node.name;
                 var date = dateFormat.format(new Date(timestamp * 1000))
-                var formatedEvent = name + " | " + date;
-                processedEventList.set(eventId, [formatedEvent, timestamp]);
+                var formatedEvent = event.node.name + " | " + date;
+                processedEventList.set(event.node.id, [formatedEvent, timestamp]);
             })
-        } catch (e) {
-            console.log(e);
+        }
+        else if ("upcomingRecurringEvents" in json.data.page) {
+            json.data.page.upcomingRecurringEvents.edges.forEach(event => {
+                event.node.childEvents.edges.forEach(subEvent => {
+                    var timestamp = subEvent.node.currentStartTimestamp;
+                    var date = dateFormat.format(new Date(timestamp * 1000))
+                    var formatedEvent = event.node.name + " | " + date;
+                    processedEventList.set(subEvent.node.id, [formatedEvent, timestamp]);
+
+                })
+            })
+        }
+        else {
+            console.log("Wrong json format")
         }
     });
     return processedEventList
+}
+
+function getEvents(pages,doc) {
+    const eventsVariable = "pageID"
+    return pages.map(page => jsonPetition(eventsVariable, page, doc))
 }
 
 const pages = [
@@ -83,10 +100,9 @@ const pages = [
     393135780706771, //ESN SWPS
     205620019512622 //ESN Warsaw United
 ];
+
+const recurringEventsDoc = "3270179606343275"
 const eventsDoc = "2464276676984576"
-const descriptionDoc = "1640160956043533"
-const eventsVariable = "pageID"
-const descriptionVariable = "eventID"
 const dateFormat = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Warsaw",
     hour12: false,
@@ -97,7 +113,7 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
     minute: 'numeric'
 })
 
-var promiseList = pages.map(page => jsonPetition(eventsVariable, page, eventsDoc))
+var promiseList = getEvents(pages, eventsDoc).concat(getEvents(pages, recurringEventsDoc))
 
 window.onload = () => {
     Promise.all(promiseList).then(responses => {
