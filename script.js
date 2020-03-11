@@ -1,7 +1,7 @@
 async function jsonPetition(variable, id, docId) {
     const rawResponse = await fetch("https://cors-anywhere.herokuapp.com/https://www.facebook.com/api/graphql/", {
         "headers": {
-            "Accept-Language": "en-US",
+            "Accept-Language": "en-GB",
             "Content-Type": "application/x-www-form-urlencoded",
         },
         "body": "variables=%7B%22" + variable + "%22%3A%22" + id + "%22%7D&doc_id=" + docId,
@@ -54,7 +54,7 @@ function showDesctiption(fullEventDescription, eventId) {
     }
 }
 
-function jsonsToEventList(responses) {
+function jsonsToEventList(responses, dateFormat) {
     var processedEventList = new Map();
     responses.forEach(json => {
         try {
@@ -63,9 +63,8 @@ function jsonsToEventList(responses) {
                 var timestamp = event.node.startTimestampForDisplay;
                 var eventId = event.node.id;
                 var name = event.node.name;
-                var day = event.node.shortDateLabel;
-                var hour = event.node.shortTimeLabel.replace(/UTC\+01/, "");
-                var formatedEvent = name + " | " + day + " " + hour;
+                var date = dateFormat.format(new Date(timestamp * 1000))
+                var formatedEvent = name + " | " + date;
                 processedEventList.set(eventId, [formatedEvent, timestamp]);
             })
         } catch (e) {
@@ -88,12 +87,21 @@ const eventsDoc = "2464276676984576"
 const descriptionDoc = "1640160956043533"
 const eventsVariable = "pageID"
 const descriptionVariable = "eventID"
+const dateFormat = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Warsaw",
+    hour12: false,
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+})
 
 var promiseList = pages.map(page => jsonPetition(eventsVariable, page, eventsDoc))
 
 window.onload = () => {
     Promise.all(promiseList).then(responses => {
-        var eventList = jsonsToEventList(responses)
+        var eventList = jsonsToEventList(responses, dateFormat)
         var sortedEvents = [...eventList.entries()].map(([id, [str, tsmp]]) => [tsmp, [str, id]]).sort();
         document.getElementById("loading").style.display = "none"
         document.getElementById("loadinggif").style.display = "none"
